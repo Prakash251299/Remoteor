@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "167105753746",
+    "project_id": "remoteor-8dc3a",
+    "storage_bucket": "remoteor-8dc3a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:167105753746:android:b3bfec2c4c555bc661ac4b",
+        "android_client_info": {
+          "package_name": "com.example.remoteor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3WhT-MM1HnMk0P2tCB0LHtvCOYRNAO_o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
