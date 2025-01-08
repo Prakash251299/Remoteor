@@ -1,19 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
@@ -24,6 +11,8 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="remoteor">
+  <meta name="google-signin-client_id" content="167105753746-buv7b2hd6ags9d3n99ukdt16i1acj4em.apps.googleusercontent.com" />
+
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
@@ -31,8 +20,41 @@
 
   <title>remoteor</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js"></script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
+  <script>
+    // Firebase Initialization
+    const firebaseConfig = {
+      apiKey: "AIzaSyC8UP3rDcjgBuyyAYrM8z53mC4iP06L4lM",
+      authDomain: "remoteor-8dc3a.firebaseapp.com",
+      projectId: "remoteor-8dc3a",
+      storageBucket: "remoteor-8dc3a.appspot.com",
+      messagingSenderId: "167105753746",
+      appId: "1:167105753746:web:27e34da2dd7c98c461ac4b",
+      measurementId: "G-0FWPTGD7DP"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+
+    // Google Identity Services Initialization
+    google.accounts.id.initialize({
+      client_id: '167105753746-buv7b2hd6ags9d3n99ukdt16i1acj4em.apps.googleusercontent.com',
+      callback: (response) => {
+        console.log("Encoded JWT ID token: " + response.credential);
+      },
+      use_fedcm_for_prompt: true // Enables FedCM
+    });
+
+    google.accounts.id.prompt(); // Automatically shows the sign-in prompt
+  </script>
 </body>
 </html>

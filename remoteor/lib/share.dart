@@ -5,7 +5,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:remoteor/constants.dart';
-import 'package:remoteor/controller/logout.dart';
+import 'package:remoteor/controller/login_logout/logout.dart';
+import 'package:remoteor/view/toast.dart';
 import 'dart:async';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
@@ -99,24 +100,27 @@ class _ConnectionPageState extends State<ConnectionPage>
     try {
       var handler = const Pipeline().addHandler(
           createStaticHandler("/storage/emulated/0", listDirectories: true));
+          // String remoteIp = request.context['remoteAddress'].address.host;
       if (server != null) {
         await server?.close();
       }
       server = await shelf_io.serve(handler, '0.0.0.0', local_port);
+      // server = await shelf_io.serve(handler, '192.168.29.206', local_port);
       print(
           'Serving locally at http://${server?.address.host}:${server?.port}');
       await serveRemotely();
     } catch (e) {
       print("Local server error $e");
       print("Do start the server first");
-      Fluttertoast.showToast(
-        msg: "Do start the server first",
-        toastLength: Toast.LENGTH_SHORT,
-        // gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
-        textColor: Colors.white,
-        fontSize: 16.0
-      );
+      // Fluttertoast.showToast(
+      //   msg: "Do start the server first",
+      //   toastLength: Toast.LENGTH_SHORT,
+      //   // gravity: ToastGravity.CENTER,
+      //   timeInSecForIosWeb: 1,
+      //   textColor: Colors.white,
+      //   fontSize: 16.0
+      // );
+      showCustomSnackBar(context, 'Do start the server first');
       callConnector = 0;
     }
   }
@@ -145,9 +149,16 @@ class _ConnectionPageState extends State<ConnectionPage>
     print("connected");
 
     await for (connection in forward.connections) {
-      // final socket = await Socket.connect('localhost', 8000);
+      // final socket = await Socket.connect('157.35.48.137', 8000);
+      print("remote_ip: ${connection.runtimeType}");
+      // if(connection.remoteAddress.address!="157.35.48.137"){
+      //   return;
+      // }
       socket = await Socket.connect('0.0.0.0', 8000);
+      // var r = await Process.run('who', ['-u']);
+      // print("who: -> $r");
       try {
+        // print(socket.remoteAddress.address);
         connection.stream.cast<List<int>>().pipe(socket);
         socket.cast<List<int>>().pipe(connection.sink);
       } catch (e) {
@@ -240,41 +251,26 @@ class _ConnectionPageState extends State<ConnectionPage>
                             size: 30,
                           ),
                           onTap: () async {
-                            // run commands
-                            // ScaffoldMessenger.of(context).showSnackBar(
-                            //   SnackBar(
-                            //     content: Text("You started sharing your files"),
-                            //     duration: Duration(seconds: 2),
-                            //     behavior: SnackBarBehavior.floating, // Customizable behavior
-                            //   ),
-                            // );
-                            
-                            // return;
-                            // print("$callConnector");
-      
+                            await serve();
+                            return;
                             /* This checks for callConnector if it is '1' then no further sharing will be done 
                           if any error occures it becomes '0' and executes below connection commands */
+
                             if (callConnector != 0) {
-                              Fluttertoast.showToast(
-                                  msg: "Already shared",
-                                  toastLength: Toast.LENGTH_SHORT,
-                                  // gravity: ToastGravity.CENTER,
-                                  timeInSecForIosWeb: 1,
-                                  textColor: Colors.white,
-                                  fontSize: 16.0);
+                              showCustomSnackBar(context,"Already logged in");
                               return;
                             }
                             callConnector = 1;
-                            Fluttertoast.showToast(
-                                msg: "You started sharing your files",
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.CENTER,
-                                timeInSecForIosWeb: 1,
-                                textColor: Colors.white,
-                                fontSize: 16.0);
                             await requestForStorage();
-                            var status =
-                                await Permission.manageExternalStorage.status;
+                            // Fluttertoast.showToast(
+                            //     msg: "You started sharing your files",
+                            //     toastLength: Toast.LENGTH_SHORT,
+                            //     gravity: ToastGravity.CENTER,
+                            //     timeInSecForIosWeb: 1,
+                            //     textColor: Colors.white,
+                            //     fontSize: 16.0);
+                            showCustomSnackBar(context,"You started sharing your files");
+                            var status = await Permission.manageExternalStorage.status;
                             if (status.isGranted) {
                               await serve();
                             } else {
@@ -282,19 +278,6 @@ class _ConnectionPageState extends State<ConnectionPage>
                             }
                           },
                         )),
-                    // GestureDetector(
-                    //   child: Padding(
-                    //     padding: const EdgeInsets.only(top: 280.0),
-                    //     child: Container(
-                    //       height: 50,
-                    //       width: 200,
-                    //       color: Colors.red,
-                    //     ),
-                    //   ),
-                    //   onTap: () async {
-                    //     // await fun();
-                    //   },
-                    // ),
                   ],
                 ),
               ),
