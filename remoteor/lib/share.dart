@@ -105,21 +105,12 @@ class _ConnectionPageState extends State<ConnectionPage>
         await server?.close();
       }
       server = await shelf_io.serve(handler, '0.0.0.0', local_port);
-      // server = await shelf_io.serve(handler, '192.168.29.206', local_port);
-      print(
-          'Serving locally at http://${server?.address.host}:${server?.port}');
+      // // server = await shelf_io.serve(handler, '192.168.29.206', local_port);
+      print('Serving locally at http://${server?.address.host}:${server?.port}');
       await serveRemotely();
     } catch (e) {
       print("Local server error $e");
       print("Do start the server first");
-      // Fluttertoast.showToast(
-      //   msg: "Do start the server first",
-      //   toastLength: Toast.LENGTH_SHORT,
-      //   // gravity: ToastGravity.CENTER,
-      //   timeInSecForIosWeb: 1,
-      //   textColor: Colors.white,
-      //   fontSize: 16.0
-      // );
       showCustomSnackBar(context, 'Do start the server first');
       callConnector = 0;
     }
@@ -139,7 +130,9 @@ class _ConnectionPageState extends State<ConnectionPage>
       onPasswordRequest: () => password,
     );
 
-    final forward = await client.forwardRemote(host: host, port: 9090);
+    /* Use server's firewall allowed port here for accessing without restriction */
+    /* For security use server's firewall restricted port like 9000 that will be managed by other allowed port. This allowed port (e.g. 8080) forwards request on the server by checking requestor's ip address whether it is allowed to access or not */
+    final forward = await client.forwardRemote(host: host, port: 9000);
     if (forward == null) {
       print('Failed to forward remote port');
       callConnector = 0;
@@ -151,10 +144,13 @@ class _ConnectionPageState extends State<ConnectionPage>
     await for (connection in forward.connections) {
       // final socket = await Socket.connect('157.35.48.137', 8000);
       print("remote_ip: ${connection.runtimeType}");
+      // print(connection.);
       // if(connection.remoteAddress.address!="157.35.48.137"){
       //   return;
       // }
       socket = await Socket.connect('0.0.0.0', 8000);
+      // socket = await Socket.connect('49.47.129.38', 8000);
+      // socket = await Socket.connect('192.168.177.24', 8000);
       // var r = await Process.run('who', ['-u']);
       // print("who: -> $r");
       try {
@@ -187,7 +183,7 @@ class _ConnectionPageState extends State<ConnectionPage>
         backgroundColor: Colors.black,
         appBar: AppBar(
           backgroundColor: Colors.black,
-          title: const Text('Connection Page',style: TextStyle(color: Colors.white),),
+          title: const Text('Sharing Page',style: TextStyle(color: Colors.white),),
           actions: [
             GestureDetector(
               child: Container(
@@ -251,8 +247,8 @@ class _ConnectionPageState extends State<ConnectionPage>
                             size: 30,
                           ),
                           onTap: () async {
-                            await serve();
-                            return;
+                            // await serve();
+                            // return;
                             /* This checks for callConnector if it is '1' then no further sharing will be done 
                           if any error occures it becomes '0' and executes below connection commands */
 
