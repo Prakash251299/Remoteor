@@ -1,6 +1,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
@@ -69,11 +70,23 @@ class LoginHandler{
           await prefs.setString('userimg', '${currentUser.user?.photoURL}');
           await prefs.setString('useremail', '${currentUser.user?.email}');
           await prefs.setString('id', '${currentUser.user?.uid}');
-          await storeUserInfo(user);
+          // getting messagin token and storing them in firestore
+          FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+          // Get the initial token
+          String? token = await messaging.getToken();
+          if (token != null) {
+            print("Initial FCM Token: $token");
+            await storeUserInfo(user,token);
+          }
+
+
           
           /* Remove previous screens and go to the UserList */
           Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => UserList()),(route)=>false);
-      }
+        }else{
+          print("user signin returned null user");
+        }
     }catch(e){
       print("Error at login(context) function -> $e");
       showCustomSnackBar(context,"Error while sigining in");

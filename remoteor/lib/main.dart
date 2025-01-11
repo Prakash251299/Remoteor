@@ -3,8 +3,11 @@
 // import 'dart:typed_data';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:remoteor/controller/firebase/notification_handler/notification.dart';
+import 'package:remoteor/controller/firebase/store_token.dart';
 // import 'package:fluttertoast/fluttertoast.dart';
 // import 'package:remoteor/constants.dart';
 import 'package:remoteor/controller/login_logout/login_handler.dart';
@@ -19,13 +22,52 @@ import 'package:remoteor/view/user_list/user_list.dart';
 // import 'package:shelf_static/shelf_static.dart';
 // import 'package:permission_handler/permission_handler.dart';
 // import 'package:dartssh2/dartssh2.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // Handle background messages
+  // await Firebase.initializeApp();
+  print("Background message received: ${message.messageId}");
+  print("Background message: ${message.notification?.body.toString()}");
+}
 
 void main()async {
   await WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  var _firebaseMessaging = FirebaseMessaging.instance;
+  // NotificationHandler _notificationHandler = NotificationHandler();
+  // await _notificationHandler.initializeNotifications();
+
   // await Firebase.ensureInitialized();
+  // await _initializeNotifications();
+
+  /* fcm token refreshes here */
+  _firebaseMessaging.onTokenRefresh.listen((token) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    /* if user is logged in only then token is stored in firestore */
+    if(prefs.getBool('status')==true){
+      print("refreshing token");
+      String? id = await prefs.getString('id');
+      await storeTokenInFirestore(id,token);
+    }
+  });
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    print('Got a message whilst in the foreground!');
+    print('Message data: ${message.data}');
+
+    if (message.notification != null) {
+      print('Message also contained a notification: ${message.notification}');
+    }
+  });
+
+  await PushNotificationService.initialize();
+
+  
 
   runApp(
     MultiProvider(
@@ -61,9 +103,11 @@ class MyAppPage extends StatefulWidget {
 }
 
 class _MyAppPageState extends State<MyAppPage>{
+  
   LoginHandler loginController = LoginHandler();
   @override
   Widget build(BuildContext context) {
+    // return Text("hi");
     return Scaffold(
       body: FutureBuilder(future: loginController.getLoginStatus(context), 
         builder: (BuildContext context, snapshot) {

@@ -1,7 +1,9 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:remoteor/constants.dart';
+import 'package:remoteor/controller/Permission/notification_permission.dart';
 import 'package:remoteor/controller/connect/connection_asker.dart';
 import 'package:remoteor/controller/firebase/fetch_users.dart';
 import 'package:remoteor/controller/login_logout/logout.dart';
@@ -64,7 +66,7 @@ class _UserListState extends State<UserList> {
         alignment: Alignment.bottomRight,
         children: [
           BlocProvider(
-            create: (context)=>UserCubit()..fetchData(),
+            create: (context)=>UserCubit()..fetchData(context),
             child: BlocBuilder<UserCubit, UserState>(builder: (context, state) {
               if(state.status==LoadPage.loading){
                 return SizedBox();
@@ -99,9 +101,9 @@ class _UserListState extends State<UserList> {
                               final currentUser = Provider.of<UserProvider>(context,listen: false).user;
                               print("Provider username ${currentUser?.name}");
                               showCustomSnackBar(context, 'Clicked on ${user.name}');
-                              // showCustomSnackBar(context, 'Clicked on ${user['name']!}');
+                              
                               ConnectionAsker _connectionAsker = ConnectionAsker();
-                              await _connectionAsker.askToConnect();
+                              await _connectionAsker.askToConnect(user.id!);
                             },
                           ),
                         );
@@ -125,13 +127,11 @@ class _UserListState extends State<UserList> {
                   borderRadius: BorderRadius.circular(50),
                   color: Colors.white
                 ),
-                // margin: EdgeInsets.only(bottom: 50,right: 20),
-                // color:Colors.lightBlue[300],
                 width:65,
                 height: 65,
                 child: IconButton(
                   icon:Icon(Icons.offline_share_rounded,size: 50,color: Colors.blue[300],),
-                  onPressed: (){
+                  onPressed: () async {
                     Navigator.of(context).push(MaterialPageRoute(builder: (context)=>RemoteApp()));
                   },
                 ),

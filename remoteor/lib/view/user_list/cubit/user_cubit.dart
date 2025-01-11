@@ -12,14 +12,14 @@ part 'user_state.dart';
 class UserCubit extends Cubit<UserState> {
   UserCubit() : super(UserState.initial());
 
-  Future<void> fetchData() async {
+  Future<void> fetchData(context) async {
     try {
       emit(state.copyWith(
         status: LoadPage.loading
       ));
 
       emit(state.copyWith(
-        users: await fetchUsers(),
+        users: await fetchUsers(context),
         status: LoadPage.loaded,
       ));
     } catch (e) {
