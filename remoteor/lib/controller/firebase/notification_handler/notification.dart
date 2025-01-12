@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -25,14 +27,24 @@ class PushNotificationService {
     });
   }
 
+
+
   static void showNotification(RemoteMessage message) async {
-    const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
-      'channel_id',
-      'channel_name',
+    AndroidNotificationChannel channel = AndroidNotificationChannel(
+      Random.secure().nextInt(100000).toString(),
+      'High Importance Notifications',
+      importance:Importance.max,
+    );
+    AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
+      // 'channel_id',
+      // 'channel_id',
+      channel.id.toString(),
+      channel.name.toString(),
       importance: Importance.max,
       priority: Priority.high,
+      ticker:'ticker'
     );
-    const NotificationDetails notificationDetails = NotificationDetails(
+    NotificationDetails notificationDetails = NotificationDetails(
       android: androidNotificationDetails,
     );
 

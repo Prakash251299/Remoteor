@@ -30,6 +30,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // await Firebase.initializeApp();
   print("Background message received: ${message.messageId}");
   print("Background message: ${message.notification?.body.toString()}");
+  PushNotificationService.showNotification(message);
 }
 
 void main()async {
@@ -38,11 +39,6 @@ void main()async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   var _firebaseMessaging = FirebaseMessaging.instance;
-  // NotificationHandler _notificationHandler = NotificationHandler();
-  // await _notificationHandler.initializeNotifications();
-
-  // await Firebase.ensureInitialized();
-  // await _initializeNotifications();
 
   /* fcm token refreshes here */
   _firebaseMessaging.onTokenRefresh.listen((token) async {
@@ -56,15 +52,12 @@ void main()async {
   });
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    print('Got a message whilst in the foreground!');
-    print('Message data: ${message.data}');
+  // FirebaseMessaging.onBackgroundMessage(PushNotificationService.initialize);
 
-    if (message.notification != null) {
-      print('Message also contained a notification: ${message.notification}');
-    }
-  });
-
+  // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+  //     print('Message received in foreground: ${message.notification?.title}');
+  //     // showNotification(message);
+  //   });
   await PushNotificationService.initialize();
 
   
