@@ -13,6 +13,7 @@ Future<void> logout(context)async{
   await prefs.remove('userimg');
   await prefs.remove('useremail');
   await prefs.remove('id');
+  await prefs.remove('token');
   Provider.of<UserProvider>(context, listen: false).clearUser();
   // Navigator.pop(context);
   Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => LoginScreen()),(route)=>false);

@@ -26,7 +26,7 @@ Future<List<MyUserInfo>> fetchUsers(context)async{
       .get();
     print(allUsers.docs.length);
     allUsers.docs.forEach((user){
-      users.add(MyUserInfo(user['name'], user['imgUrl'], user['email'], user.id));
+      users.add(MyUserInfo(user['name'], user['imgUrl'], user['email'], user.id,user['token']));
     });
   }catch(e){
     print("Error fetching users $e");

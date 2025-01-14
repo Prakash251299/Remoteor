@@ -3,5 +3,6 @@ class MyUserInfo{
   String? imgUrl;
   String? email;
   String? id;
-  MyUserInfo(this.name,this.imgUrl,this.email,this.id);
+  String? token;
+  MyUserInfo(this.name,this.imgUrl,this.email,this.id,this.token);
 }

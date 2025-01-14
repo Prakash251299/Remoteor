@@ -25,7 +25,9 @@ class LoginHandler{
     String? img = await prefs.getString('userimg');
     String? email = await prefs.getString('useremail');
     String? id = await prefs.getString('id');
-    MyUserInfo user = MyUserInfo(name, img, email,id);
+    String? token = await prefs.getString('token');
+
+    MyUserInfo user = MyUserInfo(name, img, email,id,token);
     Provider.of<UserProvider>(context, listen: false).setUser(user);
     return prefs.getBool('status') ?? false;
   }
@@ -58,7 +60,11 @@ class LoginHandler{
       // }else{
         print("signing in with google");
         var currentUser = await signInWithGoogle();
-         MyUserInfo user = MyUserInfo(currentUser.user?.displayName, currentUser.user?.photoURL, currentUser.user?.email, currentUser.user?.uid);
+
+        // getting messagin token and storing them in firestore
+        FirebaseMessaging messaging = FirebaseMessaging.instance;
+        String? token = await messaging.getToken();
+        MyUserInfo user = MyUserInfo(currentUser.user?.displayName, currentUser.user?.photoURL, currentUser.user?.email, currentUser.user?.uid,token);
 
         // Access the provider and update user data
         Provider.of<UserProvider>(context, listen: false).setUser(user);
@@ -70,15 +76,10 @@ class LoginHandler{
           await prefs.setString('userimg', '${currentUser.user?.photoURL}');
           await prefs.setString('useremail', '${currentUser.user?.email}');
           await prefs.setString('id', '${currentUser.user?.uid}');
-          // getting messagin token and storing them in firestore
-          FirebaseMessaging messaging = FirebaseMessaging.instance;
-
-          // Get the initial token
-          String? token = await messaging.getToken();
-          if (token != null) {
-            print("Initial FCM Token: $token");
-            await storeUserInfo(user,token);
-          }
+          await prefs.setString('token', '${token}');
+          
+          /* storing userinfo on firestore */
+          await storeUserInfo(user);
 
 
           

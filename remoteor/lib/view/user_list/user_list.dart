@@ -101,9 +101,9 @@ class _UserListState extends State<UserList> {
                               final currentUser = Provider.of<UserProvider>(context,listen: false).user;
                               print("Provider username ${currentUser?.name}");
                               showCustomSnackBar(context, 'Clicked on ${user.name}');
-                              
+
                               ConnectionAsker _connectionAsker = ConnectionAsker();
-                              await _connectionAsker.askToConnect(user.id!);
+                              await _connectionAsker.askToConnect(user);
                             },
                           ),
                         );
