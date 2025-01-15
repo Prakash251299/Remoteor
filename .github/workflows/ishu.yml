@@ -18,15 +18,11 @@ jobs:
         with:
           flutter-version: '3.27.1'
 
-      - name: logging the secret for check
-        run: |
-          echo "VM_IP is ${{ secrets.VM_IP }}"
-
-      - name: Check if the directory exists
-        run: ls -l remoteor
-
       - name: Inject secrets into Dart file
         run: |
           echo "class Secrets {" > remoteor/lib/secrets.dart
           echo "  static const apiKey = '${{ secrets.VM_IP }}';" >> remoteor/lib/secrets.dart
           echo "}" >> remoteor/lib/secrets.dart
+      
+      - name: Check if the file created
+        run: ls -l remoteor/lib
