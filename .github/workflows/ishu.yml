@@ -24,5 +24,14 @@ jobs:
           echo "  static const apiKey = '${{ secrets.VM_IP }}';" >> remoteor/lib/secrets.dart
           echo "}" >> remoteor/lib/secrets.dart
       
-      - name: Check if the file created
-        run: ls -l remoteor/lib
+      # - name: Check if the file created
+      #   run: ls -l remoteor/lib
+
+      - name: Commit secrets.dart to repo
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add remoteor/lib/secrets.dart
+          git commit -m "Add secrets.dart"
+          git push
+
