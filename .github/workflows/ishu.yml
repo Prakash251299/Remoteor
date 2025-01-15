@@ -20,6 +20,6 @@ jobs:
 
       - name: Inject secrets into Dart file
         run: |
-          echo "class Secrets {" > lib/secrets.dart
-          echo "  static const apiKey = '${{ secrets.VM_IP }}';" >> lib/secrets.dart
-          echo "}" >> lib/secrets.dart
+          echo "class Secrets {" > remoteor/lib/secrets.dart
+          echo "  static const apiKey = '${{ secrets.VM_IP }}';" >> remoteor/lib/secrets.dart
+          echo "}" >> remoteor/lib/secrets.dart
