@@ -1,0 +1,25 @@
+name: Ishu CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 'stable'
+
+      - name: Inject secrets into Dart file
+        run: |
+          echo "class Secrets {" > lib/secrets.dart
+          echo "  static const apiKey = '${{ secrets.API_KEY }}';" >> lib/secrets.dart
+          echo "}" >> lib/secrets.dart

@@ -28,37 +28,5 @@ class ConnectionAsker {
     }else{
       print("something bad went");
     }
-
-
-
-    // String token = await getMessagingToken(user.id);
-    // print(token);
   }
-
-  // Future<void> getMessagingToken()async{
-  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   String? savedToken = await prefs.getString('fcm_message_token');
-  //   String? token = await _firebaseMessaging.getToken();
-  //   if(token!=savedToken){
-  //     await prefs.setString('fcm_message_token', '$token');
-  //     // save it to firestore too
-  //     print("token changed");
-  //   }
-  //   print(token);
-
-
-
-  //   // FirebaseMessaging.instance.onTokenRefresh
-  //   // .listen((fcmToken) {
-  //   //   // TODO: If necessary send token to application server.
-
-  //   //   // Note: This callback is fired at each app startup and whenever a new
-  //   //   // token is generated.
-  //   //   print("new token: $fcmToken");
-  //   // })
-  //   // .onError((err) {
-  //   //   // Error getting token.
-  //   //   print("Error getting the token");
-  //   // });
-  // }
 }
