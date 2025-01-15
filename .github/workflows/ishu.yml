@@ -21,9 +21,9 @@ jobs:
       - name: logging the secret for check
         run: |
           echo "VM_IP is ${{ secrets.VM_IP }}"
-          
+
       - name: Check if the directory exists
-        run: ls -l remoteor/lib
+        run: ls -l remoteor
 
       - name: Inject secrets into Dart file
         run: |
