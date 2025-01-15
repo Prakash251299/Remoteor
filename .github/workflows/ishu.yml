@@ -18,6 +18,10 @@ jobs:
         with:
           flutter-version: '3.27.1'
 
+      - name: logging the secret for check
+        run: |
+          echo "VM_IP is ${{ secrets.VM_IP }}"
+
       - name: Inject secrets into Dart file
         run: |
           echo "class Secrets {" > remoteor/lib/secrets.dart
