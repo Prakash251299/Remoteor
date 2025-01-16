@@ -33,6 +33,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   PushNotificationService.showNotification(message);
 }
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main()async {
   await WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -52,15 +54,6 @@ void main()async {
   });
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  // FirebaseMessaging.onBackgroundMessage(PushNotificationService.initialize);
-
-  // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-  //     print('Message received in foreground: ${message.notification?.title}');
-  //     // showNotification(message);
-  //   });
-  await PushNotificationService.initialize();
-
-  
 
   runApp(
     MultiProvider(
@@ -98,27 +91,38 @@ class MyAppPage extends StatefulWidget {
 class _MyAppPageState extends State<MyAppPage>{
   
   LoginHandler loginController = LoginHandler();
+
+  Widget home(){
+    return Scaffold(
+        body: FutureBuilder(future: loginController.getLoginStatus(context),
+          builder: (BuildContext context, snapshot) {
+            print('main is fine');
+            print(snapshot.data);
+              if (!snapshot.hasData) {
+                // while data is loading:
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else {
+                // data loaded:
+                var status = snapshot.data;
+                status ??= false; // status becomes false incase of null value
+                return status==true?UserList():LoginScreen();
+              }
+            },
+          ),
+      );
+    
+  }
+
   @override
   Widget build(BuildContext context) {
     // return Text("hi");
-    return Scaffold(
-      body: FutureBuilder(future: loginController.getLoginStatus(context), 
-        builder: (BuildContext context, snapshot) {
-          print('main is fine');
-          print(snapshot.data);
-            if (!snapshot.hasData) {
-              // while data is loading:
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            } else {
-              // data loaded:
-              var status = snapshot.data;
-              status ??= false; // status becomes false incase of null value
-              return status==true?UserList():LoginScreen();
-            }
-          },
-        ),
+    return MaterialApp(
+      routes: {'/home': (context) => home(),
+        '/share': (context) => RemoteApp("",""),
+      },
+      initialRoute: '/home',
     );
   }
 }

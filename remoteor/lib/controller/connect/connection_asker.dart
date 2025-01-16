@@ -20,7 +20,9 @@ class ConnectionAsker {
       body: jsonEncode({
         "token": user.token,
         "title": "Connection request",
-        "body": "${user.name} wants to connect!"
+        "body": "${user.name} wants to connect!",
+        "screen": "/share",
+        "sender":"${user.name}"
       }),
     );
     if(res1.statusCode==200){

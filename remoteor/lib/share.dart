@@ -3,8 +3,10 @@ import 'dart:io';
 // import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:remoteor/constants.dart';
+import 'package:remoteor/controller/connect/connection_approver.dart';
 import 'package:remoteor/controller/login_logout/logout.dart';
 import 'package:remoteor/view/toast.dart';
 import 'dart:async';
@@ -15,7 +17,10 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:dartssh2/dartssh2.dart';
 
 class RemoteApp extends StatelessWidget {
-  const RemoteApp({Key? key}) : super(key: key);
+  // const RemoteApp({Key? key}) : super(key: key);
+  String sender = "";
+  String token = "";
+  RemoteApp(this.sender,this.token);
 
   @override
   Widget build(BuildContext context) {
@@ -24,13 +29,16 @@ class RemoteApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const ConnectionPage(),
+      home: ConnectionPage(sender,token),
     );
   }
 }
 
 class ConnectionPage extends StatefulWidget {
-  const ConnectionPage({Key? key}) : super(key: key);
+  // const ConnectionPage({Key? key}) : super(key: key);
+  String sender = "";
+  String token = "";
+  ConnectionPage(this.sender,this.token);
 
   @override
   State<ConnectionPage> createState() => _ConnectionPageState();
@@ -38,6 +46,7 @@ class ConnectionPage extends StatefulWidget {
 
 class _ConnectionPageState extends State<ConnectionPage>
     with SingleTickerProviderStateMixin {
+      // _ConnectionPageState(sender);
   late AnimationController _controller;
   List<double> radii = [100.0, 150.0, 200.0];
   HttpServer? server;
@@ -65,6 +74,17 @@ class _ConnectionPageState extends State<ConnectionPage>
         }
       });
     });
+
+  //  For handling back button click
+  //   SystemChannels.platform.setMethodCallHandler((message) async {
+  //     if (message == 'SystemNavigator.pop') {
+  //       // Handle the back button press
+  //       print('Back button pressed!');
+  //       return Future.value(null); // Block the default action
+  //     }
+  //     return Future.value(message);
+  //   });
+  
   }
 
   Future<void> requestForStorage() async {
@@ -276,6 +296,62 @@ class _ConnectionPageState extends State<ConnectionPage>
                         )),
                   ],
                 ),
+              ),
+            ),
+            Center(
+              child: StreamBuilder<Object>(
+                stream: null,
+                builder: (context, snapshot) {
+                  return widget.sender==""?SizedBox():Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        color:Colors.white,
+                      ),
+                      height:MediaQuery.of(context).size.height*30/100,
+                      width:MediaQuery.of(context).size.width*80/100,
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children:[
+                              IconButton(
+                                onPressed: (){
+                                  setState(() {
+                                    widget.sender="";
+                                    print("Connection rejected");
+                                  });
+                                }, 
+                                icon:Icon(Icons.cancel,size: 40,color:Colors.grey),
+                              ),
+                            ]
+                          ),
+                          // SizedBox(height:15),
+                          Icon(Icons.offline_share,size: 100,color: Colors.green,),
+                          SizedBox(height:10),
+                          Text("${widget.sender} wants to connect",style: TextStyle(fontWeight: FontWeight.bold),),
+                          Spacer(),
+                          GestureDetector(
+                            child: Container(
+                              height: 50,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10),bottomRight: Radius.circular(10)),
+                                color: Colors.blue,
+                              ),
+                              child: Center(child: Text("Allow",style: TextStyle(fontSize: 20,color: Colors.white))),
+                            ),
+                            onTap: () async {
+                              ConnectionApprover _approver = ConnectionApprover();
+                              await _approver.allowConnection(widget.token,context);
+                              print("Connection approved");
+                              setState(() {
+                                widget.sender = "";
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                  );
+                }
               ),
             ),
             AnimatedContainer(

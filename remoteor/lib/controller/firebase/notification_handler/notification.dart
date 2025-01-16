@@ -1,14 +1,16 @@
 import 'dart:math';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:remoteor/share.dart';
 
 class PushNotificationService {
   // static final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   static final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  static Future<void> initialize() async {
+  static Future<void> initialize(context) async {
     // Initialize local notifications for displaying messages when app is in foreground.
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -18,18 +20,36 @@ class PushNotificationService {
       // iOS: initializationSettingsIOS,
     );
 
-    await _flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
     // Foreground message handler
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       print('Message received in foreground: ${message.notification?.title}');
       showNotification(message);
+    await _flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (payload){
+        print("banner");
+        String screen = message.data['route'];
+        // if(message.notification?.title=="Connection request"){
+        if(screen!=""){
+          // Navigator.pushNamed(context, screen);
+          Navigator.of(context).push(MaterialPageRoute(builder: (context)=>RemoteApp(message.data['sender'],message.data['token'])));
+
+        }
+      },
+      // onDidReceiveBackgroundNotificationResponse: (payload) {
+      //   if(message.notification?.title=="Connection request"){
+      //     Navigator.of(context).push(MaterialPageRoute(builder: (context)=>RemoteApp()));
+      //   }
+      // },
+    );
     });
   }
 
 
 
   static void showNotification(RemoteMessage message) async {
+    print("showing notification");
     AndroidNotificationChannel channel = AndroidNotificationChannel(
       Random.secure().nextInt(100000).toString(),
       'High Importance Notifications',
@@ -54,6 +74,13 @@ class PushNotificationService {
       message.notification?.body,
       notificationDetails,
     );
+    // print("title of message");
+    // print(message.notification?.title);
+    print("showed notification");
+    if(message.notification?.title=="Connection request"){
+      print("sharing request");
+      // Navigator.of(context).push(MaterialPageRoute(builder: (context)=>RemoteApp()));
+    }
   }
 }
 

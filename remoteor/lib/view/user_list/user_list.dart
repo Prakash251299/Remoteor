@@ -6,6 +6,7 @@ import 'package:remoteor/constants.dart';
 import 'package:remoteor/controller/Permission/notification_permission.dart';
 import 'package:remoteor/controller/connect/connection_asker.dart';
 import 'package:remoteor/controller/firebase/fetch_users.dart';
+import 'package:remoteor/controller/firebase/notification_handler/notification.dart';
 import 'package:remoteor/controller/login_logout/logout.dart';
 import 'package:remoteor/controller/provider/user_provider.dart';
 import 'package:remoteor/share.dart';
@@ -21,6 +22,12 @@ class UserList extends StatefulWidget {
 }
 
 class _UserListState extends State<UserList> {
+
+  @override
+  void initState(){
+    super.initState();
+    PushNotificationService.initialize(context);
+  }
 
   final List<Map<String, String>> dummyUsers = const [
     {'name': 'John Doe', 'email': 'john.doe@example.com'},
@@ -132,7 +139,7 @@ class _UserListState extends State<UserList> {
                 child: IconButton(
                   icon:Icon(Icons.offline_share_rounded,size: 50,color: Colors.blue[300],),
                   onPressed: () async {
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context)=>RemoteApp()));
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context)=>RemoteApp("","")));
                   },
                 ),
               ),
