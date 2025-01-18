@@ -1,37 +1,37 @@
-name: Ishu CI
+# name: Ishu CI
 
-on:
-  push:
-    branches:
-      - main
-      - master
+# on:
+#   push:
+#     branches:
+#       - main
+#       - master
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.27.1'
+#       - name: Set up Flutter
+#         uses: subosito/flutter-action@v2
+#         with:
+#           flutter-version: '3.27.1'
 
-      - name: Inject secrets into Dart file
-        run: |
-          echo "class Secrets {" > remoteor/lib/secrets.dart
-          echo "  static const apiKey = '${{ secrets.VM_IP }}';" >> remoteor/lib/secrets.dart
-          echo "}" >> remoteor/lib/secrets.dart
+#       - name: Inject secrets into Dart file
+#         run: |
+#           echo "class Secrets {" > remoteor/lib/secrets.dart
+#           echo "  static const apiKey = '${{ secrets.VM_IP }}';" >> remoteor/lib/secrets.dart
+#           echo "}" >> remoteor/lib/secrets.dart
       
-      # - name: Check if the file created
-      #   run: ls -l remoteor/lib
+#       # - name: Check if the file created
+#       #   run: ls -l remoteor/lib
 
-      - name: Commit secrets.dart to repo
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add remoteor/lib/secrets.dart
-          git commit -m "Add secrets.dart"
-          git push
+#       - name: Commit secrets.dart to repo
+#         run: |
+#           git config --global user.name "github-actions"
+#           git config --global user.email "github-actions@github.com"
+#           git add remoteor/lib/secrets.dart
+#           git commit -m "Add secrets.dart"
+#           git push
 
