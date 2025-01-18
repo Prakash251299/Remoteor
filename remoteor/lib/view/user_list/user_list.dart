@@ -9,6 +9,7 @@ import 'package:remoteor/controller/firebase/fetch_users.dart';
 import 'package:remoteor/controller/firebase/notification_handler/notification.dart';
 import 'package:remoteor/controller/login_logout/logout.dart';
 import 'package:remoteor/controller/provider/user_provider.dart';
+import 'package:remoteor/modal/user_info.dart';
 import 'package:remoteor/share.dart';
 // import 'package:remoteor/share.dart';
 import 'package:remoteor/view/toast.dart';
@@ -110,7 +111,7 @@ class _UserListState extends State<UserList> {
                               showCustomSnackBar(context, 'Clicked on ${user.name}');
 
                               ConnectionAsker _connectionAsker = ConnectionAsker();
-                              await _connectionAsker.askToConnect(user);
+                              await _connectionAsker.askToConnect(user,context);
                             },
                           ),
                         );
@@ -139,7 +140,7 @@ class _UserListState extends State<UserList> {
                 child: IconButton(
                   icon:Icon(Icons.offline_share_rounded,size: 50,color: Colors.blue[300],),
                   onPressed: () async {
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context)=>RemoteApp("","")));
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context)=>RemoteApp("","","","")));
                   },
                 ),
               ),

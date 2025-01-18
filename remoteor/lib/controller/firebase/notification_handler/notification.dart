@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -33,7 +34,8 @@ class PushNotificationService {
         // if(message.notification?.title=="Connection request"){
         if(screen!=""){
           // Navigator.pushNamed(context, screen);
-          Navigator.of(context).push(MaterialPageRoute(builder: (context)=>RemoteApp(message.data['sender'],message.data['token'])));
+          // print(jsonDecode(message.data['sender'])['name']);
+          Navigator.of(context).push(MaterialPageRoute(builder: (context)=>RemoteApp(message.data['sender'],message.data['senderName'],message.data['token'],message.data['userIp'])));
 
         }
       },

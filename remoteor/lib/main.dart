@@ -13,6 +13,7 @@ import 'package:remoteor/controller/firebase/store_token.dart';
 import 'package:remoteor/controller/login_logout/login_handler.dart';
 import 'package:remoteor/controller/provider/user_provider.dart';
 import 'package:remoteor/firebase_options.dart';
+import 'package:remoteor/modal/user_info.dart';
 import 'package:remoteor/share.dart';
 import 'package:remoteor/view/login_page.dart';
 import 'package:remoteor/view/user_list/user_list.dart';
@@ -49,6 +50,7 @@ void main()async {
     if(prefs.getBool('status')==true){
       print("refreshing token");
       String? id = await prefs.getString('id');
+      await prefs.setString('token', token);
       await storeTokenInFirestore(id,token);
     }
   });
@@ -120,7 +122,7 @@ class _MyAppPageState extends State<MyAppPage>{
     // return Text("hi");
     return MaterialApp(
       routes: {'/home': (context) => home(),
-        '/share': (context) => RemoteApp("",""),
+        '/share': (context) => RemoteApp("","","",""),
       },
       initialRoute: '/home',
     );
