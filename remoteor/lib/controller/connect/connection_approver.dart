@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:remoteor/controller/firebase/store_accessor.dart';
@@ -10,8 +11,14 @@ import 'package:remoteor/modal/user_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 class ConnectionApprover{
   Future<void> allowConnection(String accessorId, String? token, String userIp, int port, context)async{
-    if(token == null){
+    print("currently used token");
+    print(token);
+    if(token == null || token == "undefined"){
       print("whom is to be allowed has sent null token");
+      FirebaseMessaging messaging = FirebaseMessaging.instance;
+      token = await messaging.getToken();
+      print("my fcm token");
+      print(token);
       return;
     }
     // SharedPreferences _prefs = await SharedPreferences.getInstance();

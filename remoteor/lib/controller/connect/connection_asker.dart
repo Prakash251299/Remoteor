@@ -14,11 +14,17 @@ class ConnectionAsker {
     var res = await http.get(Uri.parse('https://api.ipify.org?format=json'));
     // final currentUser = Provider.of<UserProvider>(context,listen: false).user;
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    final currentUsertoken = await prefs.getString('token');
-    print("current user token");
-    print(currentUsertoken);
-    print("user token to get notification");
-    print(user.token);
+    var currentUsertoken = await prefs.getString('token');
+    if(currentUsertoken==null || currentUsertoken == "undefined"){
+      FirebaseMessaging messaging = FirebaseMessaging.instance;
+      currentUsertoken = await messaging.getToken();
+      print("my fcm token");
+      print(currentUsertoken);
+    }
+    // print("current user token");
+    // print(currentUsertoken);
+    // print("user token to get notification");
+    // print(user.token);
     var data = jsonDecode(res.body);
     String userIp = data['ip'];
     // print(data['ip']);

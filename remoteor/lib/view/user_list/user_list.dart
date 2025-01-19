@@ -68,7 +68,18 @@ class _UserListState extends State<UserList> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(title: const Text('User List')),
+      appBar: AppBar(
+        title: const Text('User List'),
+        actions:[Padding(
+          padding: const EdgeInsets.only(right:18.0),
+          child: IconButton(
+            icon:Icon(Icons.menu),
+            onPressed:(){
+              print("ishu");
+            }
+          ),
+        )],
+      ),
       body: 
       Stack(
         alignment: Alignment.bottomRight,

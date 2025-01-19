@@ -17,6 +17,7 @@ import 'package:shelf_static/shelf_static.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:dartssh2/dartssh2.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 class RemoteApp extends StatelessWidget {
   // const RemoteApp({Key? key}) : super(key: key);
@@ -24,7 +25,7 @@ class RemoteApp extends StatelessWidget {
   String senderName = "";
   String? token = "";
   String userIp = "";
-  RemoteApp(this.sender,this.senderName,this.token,this.userIp);
+  RemoteApp(this.sender, this.senderName, this.token, this.userIp);
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +34,7 @@ class RemoteApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: ConnectionPage(sender,senderName,token,userIp),
+      home: ConnectionPage(sender, senderName, token, userIp),
     );
   }
 }
@@ -44,7 +45,7 @@ class ConnectionPage extends StatefulWidget {
   String senderName = "";
   String? token = "";
   String userIp = "";
-  ConnectionPage(this.sender,this.senderName,this.token,this.userIp);
+  ConnectionPage(this.sender, this.senderName, this.token, this.userIp);
 
   @override
   State<ConnectionPage> createState() => _ConnectionPageState();
@@ -52,7 +53,7 @@ class ConnectionPage extends StatefulWidget {
 
 class _ConnectionPageState extends State<ConnectionPage>
     with SingleTickerProviderStateMixin {
-      // _ConnectionPageState(sender);
+  // _ConnectionPageState(sender);
   late AnimationController _controller;
   List<double> radii = [100.0, 150.0, 200.0];
   HttpServer? server;
@@ -60,9 +61,9 @@ class _ConnectionPageState extends State<ConnectionPage>
   var connection;
   var client;
   int callConnector = 0;
+  int lock = 1;
   int menuWidth = 0;
   int port = 9000;
-  
 
   @override
   void initState() {
@@ -83,64 +84,97 @@ class _ConnectionPageState extends State<ConnectionPage>
       });
     });
 
-  //  For handling back button click
-  //   SystemChannels.platform.setMethodCallHandler((message) async {
-  //     if (message == 'SystemNavigator.pop') {
-  //       // Handle the back button press
-  //       print('Back button pressed!');
-  //       return Future.value(null); // Block the default action
-  //     }
-  //     return Future.value(message);
-  //   });
-  
+    //  For handling back button click
+    //   SystemChannels.platform.setMethodCallHandler((message) async {
+    //     if (message == 'SystemNavigator.pop') {
+    //       // Handle the back button press
+    //       print('Back button pressed!');
+    //       return Future.value(null); // Block the default action
+    //     }
+    //     return Future.value(message);
+    //   });
   }
 
-  Future<void> requestForStorage() async {
-    // var status = await Permission.manageExternalStorage.request();
-    var status = await Permission.manageExternalStorage.status;
-    // print(status);
-    // var status = await Permission .request();
-    // print("ishu");
-    if (status.isGranted) {
-      print("Permission Granted");
-    } else if (status.isDenied) {
-      print("Permission not granted, Requesting again.");
-      await Permission.manageExternalStorage.request();
-      var t = await Permission.manageExternalStorage.status;
-      if (t.isGranted) {
-        print("Permission granted");
-      } else {
-        print("Permission denied");
+  Future<int> requestForStorage() async {
+    if (Platform.isAndroid) {
+      final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      int apiLevel = androidInfo.version.sdkInt;
+      PermissionStatus status;
+      if (apiLevel < 29) {  // for android version 9 or below
+        // print();
+        status = await Permission.storage.request();
+      } else { // for android 10+
+        status = await Permission.manageExternalStorage.status;
       }
-    } else if (status.isPermanentlyDenied) {
-      print("Permission Permanently Denied. Open settings to enable.");
-      openAppSettings(); // Open app settings if permanently denied
-      var t = await Permission.manageExternalStorage.status;
-      if (t.isGranted) {
-        print("Permission granted by opening settings");
-      } else {
-        print("Permission denied after opening settings too");
-      }
+        // var status = await Permission.manageExternalStorage.request();
+        // print(status);
+        // var status = await Permission .request();
+        // print("ishu");
+        if (status.isGranted) {
+          print("Permission Granted");
+          return 1;
+        } else if (status.isDenied) {
+          print("Permission not granted, Requesting again.");
+          if(apiLevel<29){
+            status = await Permission.storage.request();
+          }else{
+            await Permission.manageExternalStorage.request();
+            status = await Permission.manageExternalStorage.status;
+          }
+          if (status.isGranted) {
+            print("Permission granted");
+            return 1;
+          } else {
+            print("Permission denied");
+            return 0;
+          }
+        } else if (status.isPermanentlyDenied) {
+          print("Permission Permanently Denied. Open settings to enable.");
+          openAppSettings(); // Open app settings if permanently denied
+          if(apiLevel<29){
+            status = await Permission.storage.request();
+          }else{
+            status = await Permission.manageExternalStorage.status;
+          }
+          if (status.isGranted) {
+            print("Permission granted by opening settings");
+            return 1;
+          } else {
+            print("Permission denied after opening settings too");
+            showCustomSnackBar(context, "storage access not allowed");
+            return 0;
+          }
+        }
     }
+    return 0;
   }
 
   Future<void> serve() async {
     try {
       var handler = const Pipeline().addHandler(
           createStaticHandler("/storage/emulated/0", listDirectories: true));
-          // String remoteIp = request.context['remoteAddress'].address.host;
+      // String remoteIp = request.context['remoteAddress'].address.host;
       if (server != null) {
         await server?.close();
       }
       server = await shelf_io.serve(handler, '0.0.0.0', local_port);
       // // server = await shelf_io.serve(handler, '192.168.29.206', local_port);
-      print('Serving locally at http://${server?.address.host}:${server?.port}');
+      print(
+          'Serving locally at http://${server?.address.host}:${server?.port}');
+      setState(() {
+        callConnector = 1;
+        lock = 1;
+      });
       await serveRemotely();
     } catch (e) {
+      await server?.close();
       print("Local server error $e");
       print("Do start the server first");
       showCustomSnackBar(context, 'Do start the server first');
-      callConnector = 0;
+      setState(() {
+        callConnector = 0;
+      });
     }
   }
 
@@ -212,15 +246,24 @@ class _ConnectionPageState extends State<ConnectionPage>
         backgroundColor: Colors.black,
         appBar: AppBar(
           backgroundColor: Colors.black,
-          title: const Text('Sharing Page',style: TextStyle(color: Colors.white),),
+          title: const Text(
+            'Sharing Page',
+            style: TextStyle(color: Colors.white),
+          ),
           actions: [
             GestureDetector(
               child: Container(
                   padding: EdgeInsets.only(right: 10),
                   child: menuWidth == 200
-                      ? Icon(Icons.close,color: Colors.white,)
-                      : Icon(Icons.more_vert,color: Colors.white,)),
-              onTap: () async{
+                      ? Icon(
+                          Icons.close,
+                          color: Colors.white,
+                        )
+                      : Icon(
+                          Icons.more_vert,
+                          color: Colors.white,
+                        )),
+              onTap: () async {
                 // launch('');
                 String url = "http://4.188.74.40:8080";
                 // String url = "http://localhost:8080";
@@ -268,39 +311,46 @@ class _ConnectionPageState extends State<ConnectionPage>
                         width: 60,
                         height: 60,
                         decoration: BoxDecoration(
-                          color: callConnector==1?Colors.green:Colors.blue,
+                          color:
+                              callConnector == 1 ? Colors.green : Colors.blue,
                           shape: BoxShape.circle,
                         ),
                         child: InkWell(
-                          child: Icon(
-                            Icons.power_settings_new,
-                            color: Colors.white,
-                            size: 30,
-                          ),
-                          onTap: () async {
-                            // await serve();
-                            // return;
-                            /* This checks for callConnector if it is '1' then no further sharing will be done 
-                          if any error occures it becomes '0' and executes below connection commands */
-
-                            if (callConnector != 0) {
-                              showCustomSnackBar(context,"Already sharing");
-                              // await server?.close();
-                              setState(() {
-                                callConnector = 0;
-                              });
-                              // await socket.close();
-                              // await connection.sink.close();
-                              return;
-                            }
-                            // if(callConnector==0){
-                              setState(() {
-                                callConnector = 1;
-                              });
-                              var status = await Permission.manageExternalStorage.status;
-                              if(!status.isGranted){
-                                await requestForStorage();
+                            child: Icon(
+                              Icons.power_settings_new,
+                              color: Colors.white,
+                              size: 30,
+                            ),
+                            onTap: () async {
+                              /* For stopping continuous button press */
+                              if(lock == 0){
+                                return;
                               }
+                              print("connection button pressed");
+                              /* This checks for callConnector if it is '1' sharing is on */
+
+                              if (callConnector != 0) {
+                                showCustomSnackBar(context, "Already sharing");
+                                setState(() {
+                                  lock = 0;
+                                });
+                                await server?.close();
+                                setState(() {
+                                  callConnector = 0;
+                                  lock = 1;
+                                });
+                                // await socket.close();
+                                // await connection.sink.close();
+                                return;
+                              }else{
+                              // if(callConnector==0){
+                              setState(() {
+                                lock = 0;
+                              });
+                              
+                              
+                              int status = await requestForStorage();
+
                               // Fluttertoast.showToast(
                               //     msg: "You started sharing your files",
                               //     toastLength: Toast.LENGTH_SHORT,
@@ -308,79 +358,101 @@ class _ConnectionPageState extends State<ConnectionPage>
                               //     timeInSecForIosWeb: 1,
                               //     textColor: Colors.white,
                               //     fontSize: 16.0);
-                              showCustomSnackBar(context,"You started sharing your files");
                               // status = await Permission.manageExternalStorage.status;
-                              if (status.isGranted) {
+                              if (status==1) {
                                 await serve();
+                                showCustomSnackBar(
+                                  context, "You started sharing your files");
                               } else {
                                 print("Permission is not given");
                               }
                             }
-                            // callConnector+=2;
-                          // },
-                        )),
-                        // Container(width:50,height:50,color: Colors.red,),
+                            }
+                            )),
                   ],
                 ),
               ),
             ),
             Center(
               child: StreamBuilder<Object>(
-                stream: null,
-                builder: (context, snapshot) {
-                  return widget.sender==""?SizedBox():Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        color:Colors.white,
-                      ),
-                      height:MediaQuery.of(context).size.height*35/100,
-                      width:MediaQuery.of(context).size.width*80/100,
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children:[
-                              IconButton(
-                                onPressed: (){
-                                  setState(() {
-                                    widget.sender="";
-                                    print("Connection rejected");
-                                  });
-                                }, 
-                                icon:Icon(Icons.cancel,size: height/20,color:Colors.grey),
-                              ),
-                            ]
-                          ),
-                          // SizedBox(height:15),
-                          Icon(Icons.offline_share,size: height/6.5,color: Colors.green,),
-                          SizedBox(height:10),
-                          Text("${widget.senderName} wants to connect",style: TextStyle(fontWeight: FontWeight.bold),),
-                          Spacer(),
-                          GestureDetector(
-                            child: Container(
-                              // height: MediaQuery.of(context).size.height*30/100,
-                              height: height/17,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10),bottomRight: Radius.circular(10)),
-                                color: Colors.blue,
-                              ),
-                              child: Center(child: Text("Allow",style: TextStyle(fontSize: 20,color: Colors.white))),
+                  stream: null,
+                  builder: (context, snapshot) {
+                    return widget.sender == ""
+                        ? SizedBox()
+                        : Container(
+                            decoration: BoxDecoration(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                              color: Colors.white,
                             ),
-                            onTap: () async {
-                              ConnectionApprover _approver = ConnectionApprover();
-                              await _approver.allowConnection(widget.sender,widget.token,widget.userIp,port,context);
-                              print("Connection approved");
-                              setState(() {
-                                widget.sender = "";
-                              });
-                            },
-                          ),
-                          // Container(width:50,height:50,color: Colors.red,),
-                        ],
-                      ),
-                  );
-                }
-              ),
+                            height:
+                                MediaQuery.of(context).size.height * 35 / 100,
+                            width: MediaQuery.of(context).size.width * 80 / 100,
+                            child: Column(
+                              children: [
+                                Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      IconButton(
+                                        onPressed: () {
+                                          setState(() {
+                                            widget.sender = "";
+                                            print("Connection rejected");
+                                          });
+                                        },
+                                        icon: Icon(Icons.cancel,
+                                            size: height / 20,
+                                            color: Colors.grey),
+                                      ),
+                                    ]),
+                                // SizedBox(height:15),
+                                Icon(
+                                  Icons.offline_share,
+                                  size: height / 6.5,
+                                  color: Colors.green,
+                                ),
+                                SizedBox(height: 10),
+                                Text(
+                                  "${widget.senderName} wants to connect",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Spacer(),
+                                GestureDetector(
+                                  child: Container(
+                                    // height: MediaQuery.of(context).size.height*30/100,
+                                    height: height / 17,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.only(
+                                          bottomLeft: Radius.circular(10),
+                                          bottomRight: Radius.circular(10)),
+                                      color: Colors.blue,
+                                    ),
+                                    child: Center(
+                                        child: Text("Allow",
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                color: Colors.white))),
+                                  ),
+                                  onTap: () async {
+                                    ConnectionApprover _approver =
+                                        ConnectionApprover();
+                                    await _approver.allowConnection(
+                                        widget.sender,
+                                        widget.token,
+                                        widget.userIp,
+                                        port,
+                                        context);
+                                    print("Connection approved");
+                                    setState(() {
+                                      widget.sender = "";
+                                    });
+                                  },
+                                ),
+                                // Container(width:50,height:50,color: Colors.red,),
+                              ],
+                            ),
+                          );
+                  }),
             ),
             AnimatedContainer(
                 duration: Duration(milliseconds: 200),

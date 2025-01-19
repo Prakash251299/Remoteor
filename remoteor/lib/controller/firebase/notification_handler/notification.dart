@@ -35,6 +35,8 @@ class PushNotificationService {
         if(screen!=""){
           // Navigator.pushNamed(context, screen);
           // print(jsonDecode(message.data['sender'])['name']);
+          print("token of asker");
+          print(message.data['token']);
           Navigator.of(context).push(MaterialPageRoute(builder: (context)=>RemoteApp(message.data['sender'],message.data['senderName'],message.data['token'],message.data['userIp'])));
 
         }
