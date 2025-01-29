@@ -30,7 +30,7 @@ class ConnectionAsker {
     // print(data['ip']);
 
     var res1 = await http.post(
-      Uri.parse('http://4.188.74.40:9090/send-notification'),
+      Uri.parse('http://98.70.55.107:9090/send-notification'),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
         "token": user.token,

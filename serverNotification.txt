@@ -12,13 +12,20 @@ admin.initializeApp({
 
 // Endpoint to send notification
 app.post("/send-notification", async (req, res) => {
-  const { token, title, body } = req.body;
+  const { token, title, body, screen, sender, senderName, userIp, senderToken } = req.body;
+  console.log(sender,senderName,userIp,senderToken);
   const message = {
     notification: {
       title,
       body,
     },
     token: token,
+    data:{
+      sender: sender,
+      senderName: senderName,
+      token: senderToken,
+      userIp: userIp,
+    },
     android:{priority:"high"}
   };
   try {
@@ -30,5 +37,5 @@ app.post("/send-notification", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 9090;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

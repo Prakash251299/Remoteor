@@ -14,6 +14,7 @@ import 'package:remoteor/share.dart';
 // import 'package:remoteor/share.dart';
 import 'package:remoteor/view/toast.dart';
 import 'package:remoteor/view/user_list/cubit/user_cubit.dart';
+import 'package:remoteor/controller/screen_mirror/mirror.dart';
 
 class UserList extends StatefulWidget {
   const UserList({super.key});
@@ -76,6 +77,8 @@ class _UserListState extends State<UserList> {
             icon:Icon(Icons.menu),
             onPressed:(){
               print("ishu");
+              ScreenMirror screeen_mirror = ScreenMirror();
+              screeen_mirror.mirror();
             }
           ),
         )],

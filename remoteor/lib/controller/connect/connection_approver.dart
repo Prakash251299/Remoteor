@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:remoteor/constants.dart';
 import 'package:remoteor/controller/firebase/store_accessor.dart';
 import 'package:remoteor/controller/provider/user_provider.dart';
 import 'package:remoteor/modal/user_info.dart';
@@ -29,7 +30,7 @@ class ConnectionApprover{
     // final currentUserid = await _prefs.getString('id');
     // final userName = userProvider.userName;
     var res1 = await http.post(
-      Uri.parse('http://4.188.74.40:9090/send-notification'),
+      Uri.parse('http://$host:9090/send-notification'),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
         "token": token,

@@ -48,10 +48,10 @@ class ConnectionPage extends StatefulWidget {
   ConnectionPage(this.sender, this.senderName, this.token, this.userIp);
 
   @override
-  State<ConnectionPage> createState() => _ConnectionPageState();
+  State<ConnectionPage> createState() => ConnectionPageState();
 }
 
-class _ConnectionPageState extends State<ConnectionPage>
+class ConnectionPageState extends State<ConnectionPage>
     with SingleTickerProviderStateMixin {
   // _ConnectionPageState(sender);
   late AnimationController _controller;
@@ -265,7 +265,7 @@ class _ConnectionPageState extends State<ConnectionPage>
                         )),
               onTap: () async {
                 // launch('');
-                String url = "http://4.188.74.40:8080";
+                String url = "http://$host:8080";
                 // String url = "http://localhost:8080";
                 await launchUrl(Uri.parse(url));
                 return;
