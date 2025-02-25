@@ -1,5 +1,5 @@
 # Remoteor
-A device sharing application that helps you share you device's folders remotely from other devices.
+A device sharing application that helps you share your device's folders remotely from other devices.
 
 ## Deployment
 
