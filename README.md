@@ -14,7 +14,7 @@ Users to ask for sharing
 ![WhatsApp Image 2025-02-20 at 1 13 32 PM](https://github.com/user-attachments/assets/32148fd7-8b89-4101-96d1-67b907cde930)
 The sharing page where you start sharing your device data for accessing remotely
 ![WhatsApp Image 2025-02-20 at 1 13 31 PM](https://github.com/user-attachments/assets/806e18da-9a1c-4598-9662-2f907b39687a)
-Here is the data of other user's device data which is accessible to current user
+Here is the data of other user's device which is accessible to current user
 ![WhatsApp Image 2025-02-20 at 1 13 31 PM (1)](https://github.com/user-attachments/assets/7ba599f7-3c0d-466b-a65b-ada20d226306)
 
 ## Acknowledgements
